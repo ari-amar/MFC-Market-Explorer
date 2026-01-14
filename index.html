@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mass Flow Meter & Controller Comparison</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Industrial Technical Palette */
+            --accent-primary: #2563eb;
+            --accent-primary-dark: #1e40af;
+            --accent-primary-light: #60a5fa;
+            --accent-secondary: #6d28d9;
+
+            /* Manufacturer Colors - Desaturated for professionalism */
+            --alicat-color: #b91c1c;
+            --bronkhorst-color: #047857;
+            --brooks-color: #c2410c;
+            --burkert-color: #6d28d9;
+            --mks-color: #0e7490;
+
+            /* Semantic Colors */
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #2563eb;
+
+            /* Background System - Neutral grays */
+            --bg-app: #f1f5f9;
+            --bg-sidebar: #ffffff;
+            --bg-workbench: #ffffff;
+            --bg-hover: #f8fafc;
+
+            /* Text System - High Contrast */
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+
+            /* Border System - Sharper */
+            --border-color: #cbd5e1;
+            --border-light: #e2e8f0;
+
+            /* Shadow System - Minimal, industrial */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 2px 6px rgba(0, 0, 0, 0.12);
+
+            /* Transitions */
+            --transition: all 0.15s ease;
+            --transition-fast: all 0.1s ease;
+
+            /* Border Radius - Tight and precise */
+            --radius-sm: 2px;
+            --radius-md: 4px;
+            --radius-lg: 6px;
+            --radius-xl: 6px;
+        }
+
+        [data-theme="dark"] {
+            --bg-app: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-workbench: #1e293b;
+            --bg-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --border-light: #1e293b;
+        }
+
+        /* Dark mode specific overrides */
+        [data-theme="dark"] .search-input,
+        [data-theme="dark"] .filter-select,
+        [data-theme="dark"] select {
+            background: var(--bg-workbench);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] th {
+            background: #1e293b;
+        }
+
+        [data-theme="dark"] th.spec-name {
+            background: #1e293b;
+        }
+
+        [data-theme="dark"] .sidebar-section-title {
+            background: #1e293b;
+        }
+
+        [data-theme="dark"] .pill-toggle {
+            background: var(--border-color);
+        }
+
+        [data-theme="dark"] .pill-toggle::after {
+            background: #475569;
+        }
+
+        [data-theme="dark"] .pill-toggle.active::after {
+            background: white;
+        }
+
+        [data-theme="dark"] .product-card {
+            background: var(--bg-workbench);
+        }
+
+        [data-theme="dark"] .spec-row {
+            background: #0f172a;
+        }
+
+        [data-theme="dark"] .sidebar-toggle-btn,
+        [data-theme="dark"] .workbench-toggle-btn {
+            background: var(--bg-workbench);
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        [data-theme="dark"] .sidebar-toggle-btn:hover,
+        [data-theme="dark"] .workbench-toggle-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .product-count-badge {
+            background: var(--accent-primary);
+        }
+
+        [data-theme="dark"] .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .btn-icon {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .view-toggle {
+            background: var(--bg-hover);
+        }
+
+        [data-theme="dark"] .view-btn.active {
+            background: var(--bg-workbench);
+        }
+
+        [data-theme="dark"] .preset-btn {
+            background: var(--bg-workbench);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        [data-theme="dark"] .preset-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        [data-theme="dark"] .table-container {
+            background: var(--bg-workbench);
+        }
+
+        [data-theme="dark"] .workbench-header {
+            background: var(--bg-workbench);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .command-center-header {
+            background: var(--bg-sidebar);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-app);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: var(--transition);
+        }
+
+        /* App Layout - Command Center + Workbench */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Command Center - Fixed Left Sidebar */
+        .command-center {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.08);
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 200;
+            transition: transform 0.3s ease;
+        }
+
+        .command-center.hidden {
+            transform: translateX(-100%);
+        }
+
+        .command-center-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-light);
+            background: var(--bg-sidebar);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .command-center-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .command-center-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f8fafc;
+            padding: 4px 8px;
+            margin: 0 -20px 12px -20px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        /* Sidebar Search */
+        .sidebar-section .search-container {
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        /* Sidebar Filters */
+        .sidebar-filter-item {
+            margin-bottom: 16px;
+        }
+
+        .sidebar-filter-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .sidebar-filter-item label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+
+        .sidebar-filter-item select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-workbench);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sidebar-filter-item select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .clear-filters-link {
+            font-size: 0.75rem;
+            color: var(--accent-primary);
+            cursor: pointer;
+            text-decoration: underline;
+            display: inline-block;
+            margin-top: 12px;
+        }
+
+        .clear-filters-link:hover {
+            color: var(--accent-primary-dark);
+        }
+
+        /* Spec Visibility Toggles */
+        .spec-visibility-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .spec-visibility-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .spec-visibility-label {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            flex: 1;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .spec-visibility-item.active .spec-visibility-label {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Pill Toggle Switch */
+        .pill-toggle {
+            width: 42px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .pill-toggle::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: left 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+        }
+
+        .pill-toggle.active {
+            background: var(--accent-primary);
+        }
+
+        .pill-toggle.active::after {
+            left: 21px;
+        }
+
+        .pill-toggle:hover {
+            opacity: 0.85;
+        }
+
+        .toggle-all-link {
+            font-size: 0.75rem;
+            color: var(--accent-primary);
+            cursor: pointer;
+            text-decoration: underline;
+            display: inline-block;
+        }
+
+        .toggle-all-link:hover {
+            color: var(--accent-primary-dark);
+        }
+
+        .sidebar-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        /* Spec Visibility Presets */
+        .spec-presets {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-workbench);
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--accent-primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .preset-btn.active {
+            border-color: var(--accent-primary);
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .preset-btn .preset-icon {
+            font-size: 1rem;
+        }
+
+        .preset-btn .preset-label {
+            flex: 1;
+        }
+
+        /* Workbench - Main Content Area */
+        .workbench {
+            margin-left: 280px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--bg-app);
+            transition: margin-left 0.3s ease;
+        }
+
+        .workbench.full-width {
+            margin-left: 0;
+        }
+
+        .workbench-header {
+            background: var(--bg-workbench);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s ease;
+        }
+
+        .workbench-header.hidden {
+            transform: translateY(-100%);
+            position: absolute;
+            pointer-events: none;
+        }
+
+        /* Workbench Header Toggle Button - Industrial design */
+        .workbench-toggle-btn {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: var(--bg-workbench);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            height: 20px;
+        }
+
+        .workbench-toggle-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .workbench-header-toggle-icon {
+            transition: transform 0.3s ease;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+        }
+
+        .workbench-header.hidden ~ .workbench-toggle-btn .workbench-header-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+
+        .workbench-title-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .workbench-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .product-count-badge {
+            background: var(--accent-primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .workbench-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .workbench-content {
+            flex: 1;
+            overflow: auto;
+            background: var(--bg-app);
+            padding: 16px;
+            position: relative;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header - Hidden (moved to Command Center and Workbench) */
+        header {
+            display: none;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .btn-icon {
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1.25rem;
+        }
+
+        .btn-icon:hover {
+            background: var(--border-color);
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-workbench);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+            background: var(--bg-hover);
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .view-btn.active {
+            background: var(--bg-workbench);
+            color: var(--accent-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Filter Panel - Hidden (moved to Command Center) */
+        .filter-panel {
+            display: none;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .filter-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .clear-filters {
+            font-size: 0.875rem;
+            color: var(--accent-primary);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-item label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-app);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--bg-workbench);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Table View */
+        .table-container {
+            background: var(--bg-workbench);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .table-wrapper {
+            overflow: auto;
+            flex: 1;
+            min-height: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            /* Ensure table doesn't create containing block */
+            position: relative;
+        }
+
+        thead {
+            background: var(--bg-hover);
+        }
+
+        thead tr {
+            background: var(--bg-hover);
+        }
+
+        th {
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+            border-top: 1px solid var(--border-color);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            background: #f8fafc;
+            z-index: 10;
+            /* Ensure background covers content below */
+            box-shadow: none;
+        }
+
+        /* Sticky first column header - highest z-index */
+        th.spec-name {
+            position: sticky;
+            left: 0;
+            z-index: 30;
+            background: var(--bg-hover);
+            border-right: 2px solid var(--border-color);
+            box-shadow: 2px 0 4px rgba(15, 23, 42, 0.08);
+            min-width: 220px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Enhanced shadow when scrolled vertically */
+        th.scrolled {
+            box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.12), 0 2px 4px -1px rgba(15, 23, 42, 0.06);
+        }
+
+        th.spec-name.scrolled {
+            box-shadow: 2px 4px 6px rgba(15, 23, 42, 0.15);
+        }
+
+        .product-header {
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .product-header:hover {
+            background: var(--bg-app);
+        }
+
+        .manufacturer-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .badge-alicat {
+            background: rgba(220, 38, 38, 0.08);
+            color: var(--alicat-color);
+            border: 1px solid rgba(220, 38, 38, 0.15);
+        }
+
+        .badge-bronkhorst {
+            background: rgba(5, 150, 105, 0.08);
+            color: var(--bronkhorst-color);
+            border: 1px solid rgba(5, 150, 105, 0.15);
+        }
+
+        .badge-brooks {
+            background: rgba(234, 88, 12, 0.08);
+            color: var(--brooks-color);
+            border: 1px solid rgba(234, 88, 12, 0.15);
+        }
+
+        .badge-burkert {
+            background: rgba(139, 92, 246, 0.08);
+            color: var(--burkert-color);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+        }
+
+        .badge-mks {
+            background: rgba(6, 182, 212, 0.08);
+            color: var(--mks-color);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+        }
+
+        td {
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-primary);
+            font-weight: 400;
+            transition: background-color 150ms ease;
+            line-height: 1.4;
+        }
+
+        /* Hover effect on product columns */
+        td:not(.spec-name):hover {
+            background: var(--bg-hover);
+            cursor: pointer;
+        }
+
+        tbody tr {
+            transition: var(--transition);
+        }
+
+        /* Zebra striping for better readability */
+        tbody tr:nth-child(even) {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        [data-theme="dark"] tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-hover) !important;
+        }
+
+        tbody tr:hover td:not(.spec-name):hover {
+            background: var(--bg-app);
+        }
+
+        /* Sticky first column cells - fully opaque */
+        td.spec-name {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 0.8125rem;
+            min-width: 110px;
+            max-width: 110px;
+            width: 110px;
+            white-space: normal;
+            word-wrap: break-word;
+            line-height: 1.4;
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            background: var(--bg-workbench);
+            border-right: 2px solid var(--border-color);
+            box-shadow: 2px 0 4px rgba(15, 23, 42, 0.08);
+        }
+
+        tbody tr:nth-child(even) td.spec-name {
+            background: #f8f9fa;
+        }
+
+        [data-theme="dark"] tbody tr:nth-child(even) td.spec-name {
+            background: #1a202c;
+        }
+
+        tbody tr:hover td.spec-name {
+            background: var(--bg-hover);
+        }
+
+        /* Card View - Optimized for 3x3 grid (9 cards on screen) */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .product-card {
+            background: var(--bg-workbench);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 2px solid transparent;
+            position: relative;
+            height: 310px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            border-color: var(--accent-primary);
+            overflow-y: auto;
+        }
+
+        /* Custom scrollbar for cards */
+        .product-card::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .product-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .product-card::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .product-card::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .product-card.alicat {
+            border-left: 4px solid var(--alicat-color);
+        }
+
+        .product-card.bronkhorst {
+            border-left: 4px solid var(--bronkhorst-color);
+        }
+
+        .product-card.brooks {
+            border-left: 4px solid var(--brooks-color);
+        }
+
+        .product-card.burkert {
+            border-left: 4px solid var(--burkert-color);
+        }
+
+        .product-card.mks {
+            border-left: 4px solid var(--mks-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+            line-height: 1.2;
+        }
+
+        .card-subtitle {
+            font-size: 0.6875rem;
+            color: var(--text-secondary);
+        }
+
+        .compare-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+            flex-shrink: 0;
+        }
+
+        .card-specs {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .spec-row {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 6px;
+            padding: 6px;
+            background: var(--bg-app);
+            border-radius: 4px;
+        }
+
+        .spec-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.6875rem;
+        }
+
+        .spec-value {
+            color: var(--text-primary);
+            font-size: 0.6875rem;
+            word-wrap: break-word;
+            line-height: 1.3;
+        }
+
+        /* Comparison Panel */
+        .comparison-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-workbench);
+            border-top: 2px solid var(--accent-primary);
+            padding: 20px;
+            box-shadow: var(--shadow-xl);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .comparison-panel.active {
+            transform: translateY(0);
+        }
+
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .selected-products {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .selected-tag {
+            padding: 8px 15px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selected-tag.alicat {
+            background: var(--alicat-color);
+        }
+
+        .selected-tag.bronkhorst {
+            background: var(--bronkhorst-color);
+        }
+
+        .selected-tag.brooks {
+            background: var(--brooks-color);
+        }
+
+        .selected-tag.burkert {
+            background: var(--burkert-color);
+        }
+
+        .selected-tag.mks {
+            background: var(--mks-color);
+        }
+
+        .remove-tag {
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-workbench);
+            border-radius: 16px;
+            max-width: 1400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+        }
+
+        .modal-header {
+            padding: 25px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--bg-workbench);
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .close-modal {
+            font-size: 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--danger-color);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th {
+            background: var(--accent-primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+        }
+
+        .comparison-table td {
+            text-align: center;
+            padding: 12px;
+        }
+
+        .comparison-table .spec-name {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .badge-info {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--accent-primary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Highlight matching text */
+        .highlight {
+            background-color: rgba(245, 158, 11, 0.3);
+            font-weight: 600;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-panel {
+                padding: 15px;
+            }
+
+            .spec-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Professional Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-app);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Firefox scrollbar styling */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) var(--bg-app);
+        }
+
+        /* Sidebar Toggle Button - Industrial design */
+        .sidebar-toggle-btn {
+            position: fixed;
+            top: 50%;
+            left: 280px;
+            transform: translateY(-50%);
+            z-index: 300;
+            background: var(--bg-workbench);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            border-left: none;
+            border-radius: 0 4px 4px 0;
+            padding: 20px 6px;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            width: 20px;
+        }
+
+        .sidebar-toggle-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .command-center.hidden + .sidebar-toggle-btn {
+            left: 0;
+        }
+
+        #toggleIcon {
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Product name links - styled to look like normal text */
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .card-title:hover {
+            color: var(--text-primary);
+            text-decoration: none;
+            opacity: 0.8;
+        }
+
+        .product-header-name {
+            color: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .product-header-name:hover {
+            color: inherit;
+            text-decoration: none;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Command Center - Left Sidebar -->
+        <div class="command-center" id="commandCenter">
+            <div class="command-center-header">
+                <div class="command-center-title">COMMAND CENTER</div>
+                <div class="command-center-subtitle">Mass Flow Benchmarking</div>
+            </div>
+
+            <!-- Search Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Search</div>
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search specifications...">
+                    <span class="search-icon">🔍</span>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Filters</div>
+                <div class="sidebar-filter-item">
+                    <label for="manufacturerFilter">Manufacturer</label>
+                    <select id="manufacturerFilter" class="filter-select">
+                        <option value="">All Manufacturers</option>
+                        <option value="Alicat Scientific">Alicat Scientific</option>
+                        <option value="Bronkhorst">Bronkhorst</option>
+                        <option value="Brooks Instrument">Brooks Instrument</option>
+                        <option value="Bürkert">Bürkert</option>
+                        <option value="MKS Instruments">MKS Instruments</option>
+                    </select>
+                </div>
+                <div class="sidebar-filter-item">
+                    <label for="technologyFilter">Technology</label>
+                    <select id="technologyFilter" class="filter-select">
+                        <option value="">All Technologies</option>
+                    </select>
+                </div>
+                <div class="sidebar-filter-item">
+                    <label for="categoryFilter">Product Category</label>
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <span class="clear-filters-link" id="clearFilters">Clear All Filters</span>
+            </div>
+
+            <!-- Spec Visibility Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <div class="sidebar-section-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Spec Visibility</div>
+                    <span class="toggle-all-link" id="toggleAllSpecs">Toggle All</span>
+                </div>
+
+                <!-- Preset Buttons -->
+                <div class="spec-presets">
+                    <button class="preset-btn" id="presetPerformance">
+                        <span class="preset-icon">⚡</span>
+                        <span class="preset-label">Performance Only</span>
+                    </button>
+                    <button class="preset-btn" id="presetInstallation">
+                        <span class="preset-icon">🔧</span>
+                        <span class="preset-label">Installation Only</span>
+                    </button>
+                    <button class="preset-btn active" id="presetAll">
+                        <span class="preset-icon">📊</span>
+                        <span class="preset-label">Show All Specs</span>
+                    </button>
+                </div>
+
+                <div class="spec-visibility-list" id="specVisibilityList">
+                    <!-- Spec toggles will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Toggle Button -->
+        <button class="sidebar-toggle-btn" id="sidebarToggle">
+            <span id="toggleIcon">◀</span>
+        </button>
+
+        <!-- Workbench - Main Content Area -->
+        <div class="workbench" id="workbench">
+            <div class="workbench-header" id="workbenchHeader">
+                <div class="workbench-title-section">
+                    <h1 class="workbench-title">Mass Flow Benchmarking</h1>
+                    <span class="product-count-badge" id="visibleProductsBadge">39 Products</span>
+                </div>
+                <div class="workbench-controls">
+                    <button class="btn btn-secondary" id="downloadCsvBtn" title="Download data as CSV">📥 CSV</button>
+                    <button class="btn btn-secondary" id="uploadCsvBtn" title="Upload CSV to update data">📤 Upload</button>
+                    <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                    <button class="btn btn-primary" id="downloadHtmlBtn" title="Download updated HTML file" style="display: none;">💾 Save</button>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="table">📊 Table</button>
+                        <button class="view-btn" data-view="cards">📇 Cards</button>
+                    </div>
+                    <button class="btn-icon" id="themeToggle" title="Toggle dark mode">🌓</button>
+                </div>
+            </div>
+
+            <!-- Workbench Header Toggle Button -->
+            <button class="workbench-toggle-btn" id="workbenchToggle">
+                <span class="workbench-header-toggle-icon">▼</span>
+            </button>
+
+            <div class="workbench-content">
+                <div class="container">
+                    <!-- Hidden old elements for backwards compatibility -->
+                    <header style="display: none;">
+                        <div class="header-content">
+                            <div>
+                                <h1>Mass Flow Meter & Controller Comparison</h1>
+                                <div class="subtitle">Alicat Scientific, Bronkhorst High-Tech, Brooks Instrument, Bürkert & MKS Instruments</div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div class="filter-panel" style="display: none;"></div>
+
+                    <div class="stats-bar" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalProducts">39</div>
+                            <div class="stat-label">Total Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="visibleProducts">39</div>
+                            <div class="stat-label">Visible Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="selectedProducts">0</div>
+                            <div class="stat-label">Selected for Comparison</div>
+                        </div>
+                    </div>
+
+        <div id="tableView" class="table-container">
+            <div class="table-wrapper">
+                <table id="specsTable">
+                    <thead id="tableHead"></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="cardsView" class="cards-grid" style="display: none;"></div>
+
+                    <div class="empty-state" id="emptyState" style="display: none;">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>No products found</h3>
+                        <p>Try adjusting your filters or search terms</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="comparison-panel" id="comparisonPanel">
+        <div class="comparison-header">
+            <div>
+                <h3>Selected Products (<span id="selectedCount">0</span>)</h3>
+                <div class="selected-products" id="selectedProductsList"></div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" id="compareBtn">Compare Selected</button>
+                <button class="btn btn-secondary" id="clearSelection">Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="comparisonModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Product Comparison</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Complete unified product data from V4.md
+        const productsData = {
+            products: [
+                "Alicat WHISPER", "Alicat M-Series", "Alicat BASIS2", "Alicat IS-Max", "Alicat CODA",
+                "Bronkhorst EL-FLOW Select", "Bronkhorst EL-FLOW Prestige", "Bronkhorst EL-FLOW Base",
+                "Bronkhorst IN-FLOW", "Bronkhorst EX-FLOW", "Bronkhorst mini CORI-FLOW",
+                "Brooks GF40 Series", "Brooks 5800E Series", "Brooks SLA5800 Series",
+                "Brooks 5850EM/5851EM", "Brooks 5850EMH/5851EMH", "Brooks Quantim QMC", "Brooks SLAMF",
+                "Brooks AMF", "Brooks GC50",
+                "Bürkert Type 8744", "Bürkert Type 8743", "Bürkert Type 8756", "Bürkert Type 8745", "Bürkert Type 8746", "Bürkert Type 8742", "Bürkert Type 8741",
+                "MKS IE1000A", "MKS GE250A", "MKS IE500A", "MKS CMA10B", "MKS CMA50A", "MKS GE300A", "MKS P4B", "MKS P9B", "MKS GM100A", "MKS GV50A", "MKS 1179C", "MKS GE50A", "MKS GM50A", "MKS GM51A"
+            ],
+            specs: {
+                "Manufacturer": [
+                    "Alicat Scientific", "Alicat Scientific", "Alicat Scientific", "Alicat Scientific", "Alicat Scientific",
+                    "Bronkhorst", "Bronkhorst", "Bronkhorst", "Bronkhorst", "Bronkhorst", "Bronkhorst",
+                    "Brooks Instrument", "Brooks Instrument", "Brooks Instrument", "Brooks Instrument", "Brooks Instrument", "Brooks Instrument", "Brooks Instrument",
+                    "Brooks Instrument", "Brooks Instrument",
+                    "Bürkert", "Bürkert", "Bürkert", "Bürkert", "Bürkert", "Bürkert", "Bürkert",
+                    "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments", "MKS Instruments"
+                ],
+                "Product Type": [
+                    "Low Pressure Drop MFM/MFC", "Mass Flow Meter/Controller", "OEM Gas Flow Instruments", "Intrinsically Safe Flow Instruments", "Coriolis Mass Flow Meter/Controller",
+                    "Thermal MFM/MFC for Gases", "MFM/MFC for Gases", "MFC for Gases", "Industrial Style MFM/MFC for Gases", "Ex-Protected MFM/MFC for Gases", "Coriolis MFM/MFC for Liquids/Gases",
+                    "Thermal MFM/MFC for Gases", "Thermal MFM/MFC for Gases (Analog)", "Thermal MFM/MFC for Gases (Digital)", "Metal Sealed Thermal MFC/MFM", "High Temp Metal Sealed MFC/MFM", "Coriolis MFC/MFM for Liquids/Gases", "Digital Thermal MFC/MFM IP66/Hazardous",
+                    "Elastomer Sealed, Digital, Compact Gas MFC/MFM", "Elastomer Sealed, Supercompact, MEMS-Based Gas MFC",
+                    "Thermal MFC/MFM for Gases", "Thermal MFC/MFM for Gases IP20", "Coriolis MFC/MFM for Liquids", "Thermal MFC/MFM for Gases IP20", "Thermal MFC/MFM for Gases IP65", "Thermal MFC/MFM for Gases IP65", "Thermal MFC/MFM for Gases IP20",
+                    "Industrial Thermal MFC, IP66 Rated, Multi-Gas/Multi-Range", "Elastomer Sealed Digital Thermal MFC, Multi-Gas/Multi-Range", "Industrial Thermal MFC, IP66 Rated, Multi-Gas/Multi-Range", "Compact MEMS Thermal MFC for Non-Corrosive Gases", "Compact MEMS Thermal MFC for Non-Corrosive Gases", "Elastomer Sealed Digital Thermal MFC, Multi-Gas/Multi-Range", "Multi-Gas/Multi-Range Thermal MFC", "Pressure Insensitive Multi-Gas/Multi-Range Thermal MFC", "Metal Sealed Digital Thermal MFC, Compact 3-inch Footprint", "Elastomer Sealed Digital Thermal MFC", "General Purpose Elastomer Sealed Thermal Mass-Flo Controller", "Elastomer Sealed Digital Thermal MFC, Standard 3-inch Footprint", "Metal Sealed Digital Thermal MFC, Compact 3-inch Footprint", "Metal Sealed Digital Thermal MFC, 1.125\" (28.6 mm) Wide, Compact"
+                ],
+                "Technology": [
+                    "Thermal", "Thermal", "Thermal", "Thermal", "Coriolis",
+                    "Thermal", "Thermal (DTB)", "Thermal", "Thermal", "Thermal", "Coriolis",
+                    "Thermal (MultiFlo™)", "Thermal", "Thermal", "Thermal", "Thermal", "Coriolis", "Thermal",
+                    "Thermal", "Thermal (MEMS)",
+                    "Thermal (capillary sensor)", "Thermal (capillary sensor)", "Coriolis", "Thermal", "Thermal", "Thermal", "Thermal",
+                    "Thermal", "Thermal", "Thermal", "Thermal (MEMS)", "Thermal (MEMS)", "Thermal", "Thermal", "Thermal", "Thermal", "Thermal", "Thermal", "Thermal", "Thermal", "Thermal"
+                ],
+                "Flow Range Min (SLPM)": [
+                    "0.0005 (0.5 SCCM)", "0.0005 (0.5 SCCM)", "0.1 (100 SCCM)", "0.0005 (0.5 SCCM)", "0.08 g/h",
+                    "0.014 (14 mln/min)", "0.014 (14 mln/min)", "0.2 (200 mln/min)", "0.014 (14 mln/min)", "0.16 (160 mln/min)", "0.05 g/h",
+                    "0.003 (3 SCCM)", "0.003 (3 SCCM)", "0.003 (3 SCCM)", "5850EM: 0.0005 (0.5 SCCM); 5851EM: 15 SLPM", "5850EMH: 0.003 (3 SCCM); 5851EMH: 10 SLPM", "Tube 2: 0.001 kg/h (liquid), 1.051 SLPM (gas); Tube 3: 0.010 kg/h, 2.955 SLPM; Tube 4: 0.100 kg/h, 24.787 SLPM", "Size 0: 0.003 SLPM; Size 1: 15 SLPM; Size 3: 100 SLPM",
+                    "0.005 (5 SCCM)", "0.21 (210 SCCM)",
+                    "0.01 (10 mln/min)", "0.01 (10 mln/min)", "Size 1: 0.05 kg/h; Size 2: 0.25 kg/h (liquid)", "20 lN/min", "20 lN/min", "0.01 (10 mln/min)", "0.01 (10 mln/min)",
+                    "501 SLPM", "100 SLPM", "250 SLPM", "0.015 (15 SCCM)", "14.001 (14001 SCCM)", "150 SLPM", "0.005 (5 SCCM)", "0.005 (5 SCCM)", "50.0 (50000 SCCM)", "0.005 (5 SCCM)", "0.01 (10 SCCM)", "0.005 (5 SCCM)", "0.005 (5 SCCM)", "0.005 (5 SCCM)"
+                ],
+                "Flow Range Max (SLPM)": [
+                    "1000", "10,000", "100", "5000 (meters); 250 (controllers)", "300 kg/h",
+                    "1670", "100", "200", "1670; 11,000 m³n/h", "11,000 m³n/h", "30 kg/h",
+                    "50 (N₂ eq.)", "1000 LPM (N₂ eq.)", "2500 (N₂ eq.)", "5850EM: 30 (30,000 SCCM); 5851EM: 100 (up to 200 H₂)", "5850EMH: 30; 5851EMH: 100", "Controller Tube 2: 0.15 kg/h (liquid), 1.051 SLPM (gas); Tube 3: 0.78 kg/h, 2.955 SLPM; Tube 4: 7.97 kg/h, 24.787 SLPM. Meter Tube 2: 0.19 kg/h, 1.432 SLPM; Tube 3: 1.30 kg/h, 7.207 SLPM; Tube 4: 13.50 kg/h, 53.116 SLPM", "Size 0: 50; Size 1: 150; Size 3: 2500; Size 4: 540,000 (540 m³/h)",
+                    "27", "1.5 (1500 SCCM)",
+                    "100 (100 lN/min)", "100 (100 lN/min)", "Size 1: 25 kg/h; Size 2: 120 kg/h (liquid)", "Electromagnetic: MFC 1500 lN/min, MFM 2500 lN/min; Electromotive: 2500 lN/min", "Electromagnetic: MFC 1500 lN/min, MFM 2500 lN/min; Electromotive: 2500 lN/min", "160 lN/min", "160 lN/min",
+                    "1000 SLPM (N₂ eq.)", "250 SLPM (N₂ eq.)", "500 SLPM (N₂ eq.)", "14.0 (14000 SCCM)", "50.0 (50000 SCCM)", "300 SLPM", "50.0 (50000 SCCM)", "50.0 (50000 SCCM)", "100.0 (100000 SCCM)", "50.0 (50000 SCCM)", "20.0 (20000 SCCM)", "50.0 (50000 SCCM)", "50.0 (50000 SCCM)", "50.0 (50000 SCCM)"
+                ],
+                "Accuracy (Standard)": [
+                    "", "±0.6% Rd", "±1.5% Rd or ±0.2% FS (Air, N₂, O₂, CH₄)", "±0.6% Rd or ±0.1% FS (10-20 SLPM)", "±0.2% Rd or ±0.05% FS (liquid)",
+                    "±0.5% Rd + ±0.1% FS; ±0.8% Rd + ±0.2% FS (small)", "±0.5% Rd + ±0.1% FS", "±1% FS", "±0.5% Rd + ±0.1% FS", "±1% FS", "High (Coriolis)",
+                    "±1% SP 35-100%; ±0.35% FS 2-35%", "±1% FS (incl. linearity)", "±0.6% SP (20-100% FS); ±0.12% FS (<20%) - 17025; ±0.9% SP (20-100%); ±0.18% FS (<20%) w/ uncertainty", "5850EM: ±1% FS incl. linearity (±1.5% FS for >20 SLPM); 5851EM: ±1% FS incl. linearity", "±1% FS", "Liquid: ±0.2% Rd; Gas: ±0.5% Rd (or zero stability/flow × 100%, whichever greater)", "±0.9% SP (20-100%), ±0.18% FS (<20%) w/ uncertainty; ±0.6% SP (20-100%), ±0.12% FS (<20%) 17025; Size 3/4: ±1.0% FS",
+                    "±0.6% SP (20-100% FS), ±0.12% FS (<20%) - 17025; ±1% SP (20-100% FS), ±0.2% FS (<20%) w/ uncertainty", "±1.5% SP ±0.5% FS",
+                    "±0.8% MV ±0.3% FS (under cal conditions, after <30 min warm-up)", "±0.8% MV ±0.3% FS (under cal conditions, after <30 min warm-up)", "Size 1: ±0.2% MV or ±1.4 g/h; Size 2: ±0.1% MV or ±15 g/h (for water, after 1 min warm-up)", "Electromagnetic: ±1.5% MV ±0.3% FS; Electromotive: ±2% MV ±0.5% FS (after <1 min warm-up)", "Electromagnetic: ±1.5% MV ±0.3% FS; Electromotive: ±2% MV ±0.5% FS (after <1 min warm-up)", "±0.8% MV ±0.3% FS (under cal conditions, after warm-up)", "±0.8% MV ±0.3% FS (under cal conditions, after warm-up)",
+                    "±1% SP for >20% to 100% FS; ±0.25% FS for 5% to 20% FS", "±1% SP for >20% to 100% FS; ±0.25% FS for 5% to 20% FS", "±1% SP for >20% to 100% FS; ±0.25% FS for 5% to 20% FS", "±0.8% SP for 20 to 100% FS", "±0.8% SP for 20 to 100% FS; ±0.16% FS for <20% FS", "±1% SP for >20% to 100% FS; ±0.25% FS for 5% to 20% FS", "", "±1% SP for 20 to 100% FS; ±0.2% FS for 2 to 20% FS", "±1% SP for 20 to 100% FS; ±0.2% FS for 2 to 20% FS", "±1% SP for 20 to 100% FS; ±0.2% FS for 2 to 20% FS", "±1% SP for 20 to 100% FS; ±0.2% FS for 2 to 20% FS", "±1.0% FS", "±1% Rd for 20 to 100% FS; ±0.2% FS for 2 to 20% FS", "±1% Rd for 20 to 100% FS; ±0.2% FS for 2 to 20% FS"
+                ],
+                "Repeatability": [
+                    "", "±0.1% Rd or ±0.02% FS (greater)", "±0.25% Rd or ±0.05% FS", "", "±0.05% Rd or ±0.025% FS",
+                    "<0.2% Rd", "<±0.04% FS (0-20%); <±0.2% Rd (20-100%)", "<0.2% Rd", "<0.2% Rd", "<±0.2% Rd", "Excellent",
+                    "<±0.2% SP", "0.25% of rate", "0.20% SP", "0.25% of rate", "±0.25% of rate", "±0.05% or ±[0.5 × (zero stability/flow) × 100]% Rd, whichever greater", "0.20% SP (Size 0/1); ±0.25% SP (Size 3/4)",
+                    "0.25% SP", "±0.25% SP",
+                    "±0.1% FS", "±0.1% FS", "Size 1: ±0.1% MV or ±0.7 g/h; Size 2: ±0.05% MV or ±7.5 g/h (for water)", "Electromagnetic: ±0.1% FS; Electromotive: ±0.5% FS", "Electromagnetic: ±0.1% FS; Electromotive: ±0.5% FS", "±0.1% FS", "±0.1% FS",
+                    "±0.5% Rd", "±0.5% Rd", "±0.5% Rd", "±0.2% Rd", "±0.2% Rd", "±0.5% Rd", "±0.3% Rd", "±0.3% Rd", "±0.3% Rd", "±0.3% Rd", "±0.2% Rd", "±0.3% Rd", "±0.3% Rd", "±0.3% Rd"
+                ],
+                "Turndown Ratio": [
+                    "", "0.01-100% FS", "0.1-100% (1000:1)", "0.01-100% (10,000:1)", "",
+                    "up to 1:187.5 (1:50 analog)", "1:150 (1:50 analog)", "1:50 (2-100%)", "up to 1:187.5 (1:50 analog)", "1:50 (2-100%)", "Multi-range",
+                    "2-100% (50:1)", "50:1", "100:1 (1-50 SLPM); 50:1 (others)", "5850EM: 2-100% elastomeric, 3-100% metal/Teflon; 5851EM: 50:1 elastomeric", "5-100%", "100:1 or down to min flow", "Size 0/1: 100:1 (1-50 SLPM FS), 50:1 (others); Size 3/4: 50:1. Biotech: 250:1 (0/1), 150:1 (3)",
+                    "Up to 1000:1", "100:1",
+                    "1:20 at QN <25 ml/min; 1:50 at QN >25 ml/min (higher on request)", "1:20 at QN <25 ml/min; 1:50 at QN >25 ml/min (higher on request)", "Variable (depends on QN)", "1:50", "1:50", "1:50, optionally 1:100", "1:50, optionally 1:100",
+                    "2-100% FS (50:1)", "2-100% FS (50:1)", "2-100% FS (50:1)", "0.1% to 100% FS (1000:1)", "0.1% to 100% FS (1000:1)", "2.0% to 100% FS (50:1)", "2% to 100% FS (50:1)", "2% to 100% FS (50:1)", "2% to 100% FS (50:1)", "2% to 100% FS (50:1)", "2% to 100% FS (50:1)", "2% to 100% FS (50:1)", "2% to 100% FS (50:1)", "2% to 100% FS (50:1)"
+                ],
+                "Control Response Time": [
+                    "30-150 ms (100 ms typ)", "30 ms", "As fast as 100 ms", "", "",
+                    "30 ms to 2 sec (500 ms option)", "<500 ms (fast); <1 sec (std); <2 sec (slow)", "~1 second", "1-2 seconds", "", "",
+                    "<1 sec NC; <3 sec NO (within 2%, 0-10 to 0-100%)", "<3 sec (within ±2% FS, 0-100%)", "<1 sec (5850/5851); <3 sec (5853) (within ±2% FS, 0-100%)", "<3 sec to ±2% FS (0-100% step)", "<3 sec to ±2% FS (0-100% step)", "Controller: <2 sec (Tube 2/3/4); Meter: <0.5 sec", "<1 sec (Size 0/1); <3 sec (Size 3); N/A (Size 4 meter)",
+                    "0.9 sec (≥5% FS); 5 sec (<5% FS)", "≤2 sec (>10% FS); ≤5 sec (≤10% FS)",
+                    "<2 sec (MFC settling time t95); <2 sec (MFM response time t95)", "<2 sec (MFC settling time t95); <2 sec (MFM response time t95)", "Varies (pump or valve dependent)", "Electromagnetic: <500 ms (t95); Electromotive: <5 sec (t95)", "Electromagnetic: <500 ms (t95); Electromotive: <5 sec (t95)", "<300 ms (t95)", "<300 ms (t95)",
+                    "<3 sec typical above 10% FS @ 3.45 bar (50 PSI)", "1-2 sec typical above 10% FS @ 3.45 bar (50 PSI)", "<3 sec typical above 10% FS @ 3.45 bar (50 PSI)", "<100 ms typical above 10% FS", "<100 ms typical above 10% FS", "1-2 sec typical above 10% FS", "<750 ms typical above 5% FS", "<750 ms typical above 5% FS", "<750 ms typical above 10% FS", "<750 ms typical above 5% FS", "<2 sec", "<750 ms typical above 5% FS", "<750 ms typical above 5% FS", "<750 ms typical above 5% FS"
+                ],
+                "Operating Pressure Range (bar)": [
+                    "", "", "", "0.79-22.06 (11.5-320 PSIA)", "Up to 275.8 (4000 PSIA)",
+                    "PN64/100/200/400: 64-400", "PN64/100: 64-100 (1000-1500 PSI)", "0-10 bar(g)", "PN100/200/400/700: 100-700", "PN100: 100", "Up to 200",
+                    "Up to 10.3 (150 PSIG)", "Up to 103.4 (1500 PSI) 5850/5851; Up to 68.9 (1000 PSI) 5853", "Up to 103.4 (1500 PSI) 5850/5851; Up to 68.9 (1000 PSI) 5853", "103.4 (1500 PSI) max (34.5/500 PSI w/ SS fastener 5850EM)", "1 MPaG (145 PSIG) max", "Standard: 34.5 (500 PSI); Optional: 103 (1500 PSI)", "Size 0/1: 103 (1500 PSI); Size 3: 69 (1000 PSI); Size 4: Flow dependent",
+                    "MFC: 10 bar (150 PSIG); MFM: 27 bar (400 PSIG)", "Up to 10.34 bar (150 PSIG max)", "Depends on actuator type", "MFM: max 25 bar; MFC: max 25 bar (depends on valve)", "MFM: max 25 bar; MFC: max 25 bar (depends on valve)", "MFM: max 25 bar; MFC: max 25 bar (depends on valve)", "MFM: max 25 bar; MFC: max 25 bar (depends on valve)",
+                    "Up to 10.34 bar (150 PSIG) max; Normal operating 2.76-3.45 bar (40-50 PSID) differential", "Up to 10.34 bar (150 PSIG) max; Normal operating 2.07-3.79 bar (30-55 PSID) differential", "Up to 10.34 bar (150 PSIG) max; Normal operating 2.76-3.45 bar (40-50 PSID) differential", "Up to 5.52 bar (80 PSIG) max", "Up to 5.52 bar (80 PSIG) max", "Up to 10.34 bar (150 PSIG max)", "Up to 10.34 bar (150 PSIG) max", "Up to 10.34 bar (150 PSIG) max", "Up to 10.34 bar (150 PSIG) max", "Up to 10.34 bar (150 PSIG) max", "Up to 68.95 bar (1000 PSIG) max", "Up to 10.34 bar (150 PSIG) max", "Up to 10.34 bar (150 PSIG) max", "Up to 10.34 bar (150 PSIG) max", "MFC: 10.34 bar (150 PSIG) max; MFM: 34.47 bar (500 PSI) max", "MFC: 10.34 bar (150 PSIG) max; MFM: 34.47 bar (500 PSI) max"
+                ],
+                "Operating Temperature (°C)": [
+                    "", "", "0-50", "-20 to 70", "",
+                    "-10 to 70", "-10 to 70", "0-50 (most models)", "-10 to 70", "-10 to 70 (sensor); -40 to 65 (coil)", "Up to 70+",
+                    "5-50 (41-122°F)", "5-65 (41-149°F)", "-14 to 65 (7-149°F); 0-65 (hazardous)", "5850EM: 5-65 (40-150°F) op, -25 to 100 (-13 to 212°F) non-op; 5851EM: 5-65 (41-149°F)", "50-105 (122-221°F)", "0-60 (device temp can rise up to 10°C from internal heating)", "-14 to 65 (7-149°F); 0-65 (hazardous). Biotech: -14 to 50",
+                    "0-65 (32-149°F)", "0-50 (32-122°F)", "MFM: -10 to +70; MFC: -10 to +60; Ambient: -10 to +50", "-10 to +70 (-10 to +60 with O₂); Ambient: -10 to +50", "-10 to +70 (-10 to +60 with O₂); Ambient: -10 to +50", "-10 to +70 (-10 to +60 with O₂); Ambient: -10 to +50", "-10 to +70 (-10 to +60 with O₂); Ambient: -10 to +50",
+                    "10-50 (50-122°F) ambient; Storage: -20 to 65 (-4 to 149°F)", "10-50 (50-122°F) ambient; Storage: -20 to 65 (-4 to 149°F)", "10-50 (50-122°F) ambient; Storage: -20 to 65 (-4 to 149°F)", "10 to 50", "10 to 50", "10 to 50", "10 to 50", "10 to 50", "10 to 50", "10 to 50", "0 to 50", "10 to 50", "10 to 50", "10 to 50", "10 to 50", "10 to 50"
+                ],
+                "Temperature Sensitivity": [
+                    "", "", "0.05% Rd/°C from cal", "", "",
+                    "Zero: <0.05% FS/°C; Span: <0.05% Rd/°C", "Zero: <0.02% FS/°C; Span: <0.025% Rd/°C", "Zero: <0.1% FS/°C; Span: <0.1% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.05% Rd/°C", "Zero: <±0.05% FS/°C; Span: <±0.05% Rd/°C", "",
+                    "", "Zero: <0.075% FS/°C; Span: <1.0% FS over 10-50°C", "Zero: <0.05% FS/°C; Span: <0.1% SP/°C", "Zero: <±0.075% FS/°C; Span: <±1.0% FS over 10-50°C", "", "Zero: 0.05% FS/°C; Span: 0.035% FS/°C", "Zero: <0.05% FS/°C; Span: <0.1% SP/°C",
+                    "±(0.05% FS + 0.05% MV)/K (deviation from gas temp during cal)", "±(0.05% FS + 0.05% MV)/K (deviation from gas temp during cal)", "Not specified", "Not specified", "Not specified", "Not specified", "Not specified",
+                    "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "Zero: <0.005% FS/°C; Span: <0.06% Rd/°C", "Zero: <0.005% FS/°C; Span: <0.06% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "", "", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C", "Zero: <0.05% FS/°C; Span: <0.08% Rd/°C"
+                ],
+                "Multi-gas Calibration": [
+                    "", "98+ pre-loaded gases", "9 gases (Air, N₂, O₂, CH₄, He, H₂, Ar, CO₂, N₂O)", "98+ gases (128 media-isolated)", "Fluid-independent (Coriolis)",
+                    "98+ pre-loaded gases", "100 unique gases embedded", "", "Multi-Gas/Multi-Range option", "", "Fluid-independent (Coriolis)",
+                    "MultiFlo™: 10 bins standard (gas-specific correction)", "Gas-specific calibration required", "Multi-gas capable; Biotech: Air, CO₂, N₂, O₂ pre-cal", "Gas-specific calibration required", "", "Fluid-independent (Coriolis) - no gas-specific cal needed", "Gas-specific cal required. Biotech: Pre-cal Air, CO₂, N₂, O₂",
+                    "User-friendly gas conversion; Calibration medium: Nitrogen", "User-friendly gas conversion; Calibration medium: Nitrogen", "Fluid-independent (Coriolis); Calibration medium: Water", "Calibration medium: Operating medium or air", "Calibration medium: Operating medium or air", "Calibration medium: Operating medium or air", "Calibration medium: Operating medium or air",
+                    "Multi-gas/multi-range via embedded diagnostic interface; Gas parameters for typical high flow gases pre-stored", "Multi-gas/multi-range via embedded diagnostic interface; Gas parameters for typical high flow gases pre-stored", "Multi-gas/multi-range via embedded diagnostic interface; Gas parameters for typical high flow gases pre-stored", "Multiple gases supported (He, Ar, Air, N2, O2, SF6)", "Multiple gases supported (He, Ar, Air, N2, O2, SF6)", "Multi-gas/multi-range via embedded diagnostic interface; Gas parameters for typical high flow gases pre-stored", "Multi-gas/multi-range via embedded diagnostic interface; Gas parameters for semiconductor gases pre-stored", "Multi-gas/multi-range via embedded diagnostic interface; Gas parameters for semiconductor gases pre-stored", "Multi-gas/multi-range via embedded diagnostic interface; Gas parameters for semiconductor gases pre-stored", "", "", "User-gas calibration via embedded user interface", "User-gas calibration via embedded user interface", "User-gas calibration via embedded user interface", "User-gas calibration via embedded user interface", "User-gas calibration via embedded user interface"
+                ],
+                "Communications": [
+                    "Digital and analog outputs", "Analog, RS-232, RS-485, DeviceNet, EtherCAT, EtherNet/IP, TCP/IP, Modbus RTU, PROFIBUS, PROFINET, IO-Link", "MODBUS, ASCII, or analog", "4-20 mA, RS-232, RS-485, ASCII, Modbus RTU", "Analog, RS-232, RS-485, Modbus RTU, EtherCAT, EtherNet/IP, PROFINET",
+                    "RS232, RS485, PROFIBUS DP, DeviceNet, CANopen, PROFINET, EtherCAT, Modbus RTU, EtherNet/IP, POWERLINK, FLOW-BUS", "RS232, RS485, DeviceNet, CANopen, PROFIBUS DP, PROFINET, Modbus RTU/ASCII, EtherCAT, EtherNet/IP, Modbus-TCP, FLOW-BUS, POWERLINK", "RS232, Modbus-RTU/-ASCII, Analog (0-5/10 Vdc, 0/4-20 mA)", "RS232, PROFIBUS DP, DeviceNet, CANopen, PROFINET, EtherCAT, Modbus RTU/ASCII/TCP, EtherNet/IP, POWERLINK, FLOW-BUS", "E-8000 power supply/readout (intrinsically safe)", "RS232, PROFIBUS DP, DeviceNet, Modbus RTU/ASCII, FLOW-BUS, EtherCAT, PROFINET",
+                    "RS485 (S/L/A Protocol), Profibus, DeviceNet, EtherCAT; Analog I/O: 0-5V, 0-10V, 0-20mA, 4-20mA", "Analog: 0-5V, 0-10V, 0-20mA, 4-20mA; 15-Pin Male Sub-D or Card Edge", "RS485/Analog, Profibus, DeviceNet, EtherCAT, EtherNet/IP, PROFINET; Various analog I/O", "Analog (0-5V); 15-pin D-Connector (DA-15P)", "Analog (0-5V); 15-pin Male D-sub", "Digital: RS485 S-Protocol; Analog: Primary/Secondary outputs (0-20mA, 4-20mA, 0-5V, 0-10V)", "RS485, Profibus, DeviceNet, EtherNet/IP, PROFINET; Analog: 0-5V, 1-5V, 0-10V, 0-20mA, 4-20mA",
+                    "büS/CANopen (M12 plug 5-pin); PROFIBUS DPV1 (M12 socket & plug 5-pin)", "Analog: 4-20mA, 0-20mA, 0-10V, 0-5V (D-Sub 9-pin or terminal strip 6-pin); Modbus RTU (D-Sub 9-pin); Industrial Ethernet: EtherCAT, EtherNet/IP, Modbus TCP, PROFINET (2x RJ45 socket/switch)", "büS/CANopen (M12 plug 5-pin); Analog: 4-20mA, 0-20mA, 0-10V, 0-5V (M12); Industrial Ethernet: EtherCAT, EtherNet/IP, Modbus TCP (2x M8 socket)", "Analog: 4-20mA, 0-20mA, 0-10V, 0-5V (D-Sub 9-pin or terminal strip); Modbus RTU (D-Sub 9-pin); Industrial Ethernet: EtherCAT, EtherNet/IP, Modbus TCP, PROFINET (2x RJ45)", "büS/CANopen, PROFIBUS DPV1 (M12); Analog: 4-20mA, 0-20mA, 0-10V, 0-5V (M12); Industrial Ethernet: EtherCAT, EtherNet/IP, Modbus TCP (2x M8)", "büS/CANopen, PROFIBUS DPV1 (M12); Analog: 4-20mA, 0-20mA, 0-10V, 0-5V (M12); Industrial Ethernet: EtherCAT, EtherNet/IP, Modbus TCP (2x M8)", "büS/CANopen (terminal strip); Analog: 4-20mA, 0-20mA, 0-10V, 0-5V (D-Sub 9-pin or terminal strip); Modbus RTU (D-Sub 9-pin); Industrial Ethernet: EtherCAT, EtherNet/IP, Modbus TCP, PROFINET (2x RJ45)",
+                    "Profibus, PROFINET, Analog (0-5VDC, 4-20mA), Ethernet (embedded diagnostics)", "Profibus, PROFINET, DeviceNet, RS485, EtherCAT, Analog (0-5VDC, 4-20mA), Ethernet (embedded diagnostics)", "Profibus, PROFINET, Analog (0-5VDC, 4-20mA), Ethernet (embedded diagnostics)", "RS485, PROFINET, Modbus TCP/IP, Analog (0-5 VDC)", "RS485, PROFINET, Modbus TCP/IP, Analog (0-5 VDC)", "RS485, PROFINET, Profibus, Analog (0-5 VDC), 4-20 mA", "DeviceNet, EtherCAT, RS485, Profibus, PROFINET, Analog (0-5 VDC), 4-20 mA", "DeviceNet, Analog (0-5 VDC)", "DeviceNet, EtherCAT, Analog (0-5 VDC)", "DeviceNet, EtherCAT, RS485, Profibus, PROFINET, Modbus, Analog (0-5 VDC), 4-20 mA", "Analog (0-5 VDC)", "DeviceNet, EtherCAT, RS485, Profibus, PROFINET, Modbus, Analog (0-5 VDC), 4-20 mA", "DeviceNet, EtherCAT, RS485, Profibus, PROFINET, Modbus, Analog (0-5 VDC), 4-20 mA", "DeviceNet, EtherCAT, RS485, PROFINET, Modbus, Analog (0-5 VDC)", "DeviceNet, EtherCAT, RS485, Profibus, PROFINET, Modbus, Analog (0-5 VDC), 4-20 mA", "DeviceNet, EtherCAT, RS485, Profibus, PROFINET, Modbus, Analog (0-5 VDC), 4-20 mA"
+                ],
+                "Power Supply": [
+                    "", "", "", "", "",
+                    "15-24 VDC", "15-24 VDC", "15-24 VDC", "15-24 VDC", "Via E-8000 system", "",
+                    "12-24 VDC (7-8 Watt)", "±15 VDC (3.5-10.5 Watt depending on valve)", "13.5-27 VDC or 11-25 VDC depending on protocol (2-10 Watt)", "±15 Vdc (±5%): 5850EM: NC <2.5 SLPM: 3.25W max; NO >2.5 SLPM: 10.5W max; 5851EM: 10.5W max", "±15 Vdc @ 350 mA (max)", "14-27 Vdc. Controller: Valve >0.032\": 8W, ≤0.032\": 5W, No valve: 2W. Meter: 2W (RS485), 4W (Profibus/DeviceNet), 3W (EtherNet/PROFINET)", "+13.5-27 Vdc (RS485/Analog/EtherNet); +11-25 Vdc (Profibus/DeviceNet). Valve >0.032\": 8W, ≤0.032\": 5W, No valve: 2W",
+                    "24 V DC (±10%); MFM: 1-2 W; MFC: max 3-18 W (depending on valve type)", "24 V DC (±10%); MFM: 1-2 W; MFC: max 3-18 W (depending on valve type)", "24 V DC (±10%); MFM: <2 W; MFC: <10 W (valve Type 2873), <16 W (pump)", "24 V DC (±10%); Electromagnetic: MFM max 4 W, MFC max 12.5-31.5 W; Electromotive: MFM max 4 W, MFC max 12 W", "24 V DC (±10%); Electromagnetic: MFM max 2 W, MFC max 10.5-29.5 W; Electromotive: MFM max 2 W, MFC max 10.5 W", "24 V DC (±10%); MFM: 1 W; MFC: max 3-17.5 W (depending on valve type)", "24 V DC (±10%); MFM: 1-3 W; MFC: max 3-19.5 W (depending on valve type)",
+                    "+15 to +24 VDC @ <8W (analog); <4W (Profibus); <5W (PROFINET)", "+15 to +24 VDC @ <4W (analog/Profibus/RS485/DeviceNet); +24 VDC @ <5W (EtherCAT/PROFINET)", "+15 to +24 VDC @ <8W (analog); <4W (Profibus); <5W (PROFINET)", "+15 to +24 VDC @ <2W", "+15 to +24 VDC @ <2W", "+15 to +24 VDC @ <4W", "+15 to +24 VDC @ <4W", "+15 to +24 VDC @ <4W", "+15 to +24 VDC @ <4W", "+15 to +24 VDC @ <4W", "+15 to +24 VDC @ <4W", "+15 to +24 VDC @ <4W", "+15 to +24 VDC @ <4W", "+15 to +24 VDC @ <4W", "+15 to +24 VDC @ <4W (analog/Profibus/RS485/DeviceNet); +24 VDC @ <5W (EtherCAT/PROFINET)", "+15 to +24 VDC @ <4W (analog/Profibus/RS485/DeviceNet); +24 VDC @ <5W (EtherCAT/PROFINET)"
+                ],
+                "Hazardous Area Certification": [
+                    "CSA Class 1 Div 2 (ATEX Zone 2) available", "", "", "ATEX/IECEx: II 1 G Ex ia IIC T4 Ga; North America: Class I, Div 1, Groups A-D T4 Ex ia; Class I, Zone 0", "",
+                    "", "", "", "", "ATEX Category 2 Zone 1 (Gas) IECEx EPL Gb; II 1 G D Ex ia ta IIC // IIIC T6; II 2 G D Ex eb tb IIC // IIIC T4", "ATEX Zone 1/2; II 2 G Ex d e IIB T6 Gb (Ex D models)",
+                    "Safe Area: EN61010-1", "CE: EMC Directive", "UL/CSA Class I Div 2/Zone 2; ATEX II 3 G Ex nA IIC T4 Gc; IECEx; KOSHA", "", "", "Optional: UL Recognized (C1D2), UL Listed (C1D2), ATEX Zone 2, IECEx Zone 2, KOSHA, JPEx", "UL Recognized (C1D2), UL Listed (C1D2), ATEX II 3 G Ex ec IIC T4 Gc, IECEx, KOSHA, JPEx",
+                    "Optional: ATEX: II 3G Ex ec IIC T4 Gc, II 3D Ex tc IIIC T135°C Dc; IECEx: Ex ec IIC T4 Gc, Ex tc IIIC T135°C Dc; UL Listed USA/Canada", "Optional: UL Listed USA/Canada", "Optional: MFM only - ATEX II 3 G Ex nA IIC T4 Gc X; IECEx Ex nA IIC T4 Gc X", "Not specified", "Optional: ATEX II 3 G Ex nA IIC T4 Gc; IECEx Ex nA IIC T4 Gc", "Optional: ATEX II 3 G Ex nA IIC T4 Gc; IECEx Ex nA IIC T4 Gc", "Optional: UL Listed USA/Canada",
+                    "CE", "CE", "CE", "CE", "CE", "CE", "CE", "CE", "CE", "CE", "CE", "CE", "CE", "CE", "CE", "CE"
+                ],
+                "Ingress Protection": [
+                    "", "", "", "IP66", "",
+                    "IP40", "", "", "IP65", "IP65", "IP40 (lab); IP65 (industrial)",
+                    "", "", "Type 1 / IP40", "", "", "IP40 or IP66", "IP66",
+                    "IP65", "IP20", "IP65 (IP40 with pump)", "IP20", "IP65", "IP65", "IP20",
+                    "IP66", "", "IP66", "", "", "", "", "", "", "", "", "", "", "", "", ""
+                ],
+                "Valve Type": [
+                    "Pneumatic", "Pneumatic", "Embedded pneumatic", "Pneumatic", "Pneumatic",
+                    "Solenoid (proportional EM)", "Improved control valve", "NC solenoid", "Proportional; Pilot-operated, Vary-P", "Separate from sensor (Ex-rated)", "Integrated or close-coupled",
+                    "NC, NO, or No Valve (Meter)", "NC, NO, Meter", "NC, NO, Meter", "NC, NO", "NC, NO", "Coplanar valve (NC or NO). Controller only; Meter = no valve", "NC, NO, Meter. Enhanced valve for Biotech",
+                    "Proportional valve NC; DN 0.05-4mm; KVS 0.00006-0.32 m³/h", "Proportional valve NC; DN 0.05-4mm; KVS 0.00006-0.32 m³/h", "Micro-annular gear pump (Size 1); Proportional valve Type 2873 NC (Size 1); Modular actuator interface", "Electromagnetic NC: DN 0.8-12mm, KVS 0.02-2.5 m³/h; Electromotive NC: DN 2-20mm, KVS 0.5-7.8 m³/h", "Electromagnetic NC: DN 0.8-12mm, KVS 0.02-2.5 m³/h; Electromotive NC: DN 2-20mm, KVS 0.5-7.8 m³/h", "Proportional valve NC; DN 0.05-8mm; KVS 0.00006-1.1 m³/h", "Proportional valve NC; DN 0.05-8mm; KVS 0.00006-1.1 m³/h",
+                    "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (metal sealed)", "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (elastomer sealed)", "Proprietary control valve design (metal sealed)", "Proprietary control valve design (metal sealed)", "Proprietary control valve design (Teflon sealed)", "Proprietary control valve design (Teflon sealed)"
+                ],
+                "Leak Integrity (External)": [
+                    "", "", "", "", "",
+                    "", "", "", "", "", "",
+                    "", "", "", "1×10⁻¹⁰ atm·cc/sec He max", "1×10⁻¹¹ Pa·m³/s (1×10⁻¹⁰ atm·cc/s) He", "Elastomer: 1×10⁻⁹ atm·cc/sec He; Metal: 1×10⁻¹⁰ atm·cc/sec He", "1×10⁻⁹ atm·cc/sec He",
+                    "Not specified", "Not specified", "<10⁻⁶ mbar·l/s (depending on seal material)", "Not specified", "Not specified", "Not specified", "Not specified",
+                    "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻⁹ scc/sec He", "<1×10⁻¹⁰ scc/sec He", "<1×10⁻¹⁰ scc/sec He"
+                ],
+                "Special Features": [
+                    "Bidirectional flow, integrated totalizer, downstream valve options, backlit color display", "PD or PD2I valve tuning", "Built-in totalizer, dosing/batching, valve overrides, programmable watchdog, FlowVision 2.0 compatible", "Can meter flow while controlling pressure", "Variable fluid compatibility, high-pressure capable",
+                    "Multi-Gas/Multi-Range, FlowTune software", "Differential Temperature Balancing, pressure correction, FlowTune/FlowSuite", "Cost-effective, digitally configurable", "Multi-Gas/Multi-Range, FlowTune", "Ex-protected, intrinsically safe system", "FLUIFILL dosing, density & temp outputs",
+                    "Hastelloy sensor, alarms & diagnostics, auto shut-off, attitude sensitivity <0.25% @ 90°, zero stability <0.5% FS/year", "Industry-leading stability, superior valve, modular architecture, primary standard calibration", "Service port, alarms & diagnostics, industry-leading stability, modular design, ISO 17025 option, Biotech packages", "Industry-leading stability; High leak integrity for hazardous gases; Optional enhanced process finish (5 Ra avg); High purity VAR 316L SS", "Particulate-free; Helium leak check ports; Electrically-activated valve override; Low command flow cutoff; TTL compatible \"valve off\"; High temp for fiber optic", "Multivariable outputs (mass, volume, density, temp); True mass measurement; Diagnostic alarms; Service port & BEST software; Optional hazardous area", "Service port; Alarms & diagnostics; Superior valve; Modular architecture; ISO 17025 option; Biotech: High turndown (250:1), enhanced valve, pre-cal multi-gas, Class VI elastomers",
+                    "Non-wetted sensor elements; Configuration memory; RGB LED (NAMUR NE107); Bürkert Communicator software; Optional FDA/USP compliance; Optional O₂ suitability; Horizontal/vertical mounting; Wetted parts: SS 1.4401/316, 1.4404/316L, 1.4435/316L, PCTFE; Seals: FKM, EPDM, FFKM; Weight: <20 lN/min: ~800g (MFM), ~1100g (MFC); >20 lN/min: ~1000g (MFM), ~1500-1600g (MFC)", "Non-wetted sensor elements; Configuration memory; RGB LED (NAMUR NE107); Bürkert Communicator software; Optional FDA/USP compliance; Optional O₂ suitability; PC housing; Analog interface options; Industrial Ethernet support; Horizontal/vertical mounting; Wetted parts: SS 1.4401/316, 1.4404/316L, 1.4435/316L, PCTFE; Seals: FKM, EPDM, FFKM; Weight: <20 lN/min: ~700g (MFM), ~1000g (MFC); >20 lN/min: ~900g (MFM), ~1400-1500g (MFC)", "Coriolis technology; Measures flow, density, temperature; Configuration memory; RGB LED (NAMUR NE107); Bürkert Communicator software; Optional FDA/USP compliance; Multiple actuator options: micro-annular gear pump (Size 1), proportional valve Type 2873 (Size 1), modular interface; Aluminum housing; Hot water/steam cleaning capability (MFM); Weight: MFM >3 kg, MFC ≤6 kg; Can be mounted in any position; SS 1.4404/316L base block & sensor (Alloy C22 optional for Size 1); Seals: FFKM, metal, PCTFE", "PC housing; Electromagnetic/electromotive valve options; RGB LED (NAMUR NE107); Configuration memory; Bürkert Communicator software; Optional FDA/USP compliance; Optional O₂ suitability; Horizontal/vertical mounting; Aluminum or SS 1.4404/316L base block; Wetted sensor: SS 1.4404/316L, Al2O3, PPS GF40; Seals: FKM or EPDM; Weight: Electromagnetic ~1800g (Al), ~3100g (SS); Electromotive ~1670g (Al), ~2940g (SS)", "Die-cast aluminum housing; Electromagnetic/electromotive valve options; RGB LED (NAMUR NE107); Configuration memory; Bürkert Communicator software; Optional FDA/USP compliance; Optional O₂ suitability; Optional explosion protection; Horizontal/vertical mounting; Aluminum or SS 1.4404/316L base block; Wetted sensor: SS 1.4404/316L, Al2O3, PPS GF40; Seals: FKM or EPDM; Weight: Electromagnetic ~1800g (Al), ~3100g (SS); Electromotive ~1670g (Al), ~2940g (SS)", "Die-cast aluminum housing; RGB LED (NAMUR NE107); Configuration memory; Bürkert Communicator software; Optional FDA/USP compliance; Optional O₂ suitability; Optional explosion protection; Horizontal/vertical mounting; Aluminum or SS 1.4404/316L base block; Wetted parts: SS 1.4310/302, 1.4113/434, 1.4305/303; Seals: FKM or EPDM; Weight: ~950g (SS base block)", "PC housing; RGB LED (NAMUR NE107); Configuration memory; Bürkert Communicator software; Optional FDA/USP compliance; Optional O₂ suitability; Horizontal/vertical mounting; Aluminum or SS 1.4404/316L base block; Wetted parts: SS 1.4310/302, 1.4113/434, 1.4305/303; Seals: FKM or EPDM; Weight: ~500g (Al base block)",
+                    "Multi-gas/multi-range via embedded diagnostic interface (Ethernet + HTML browser); IP66 enclosure for harsh environments; Device health checks & flow response plotting; Wetted materials: 316L SS, Elgiloy, 430FR, PTFE; Seal options: Viton, Buna, Neoprene, EPDM, Viton USP Class VI; Burst pressure: 103.4 bar (1500 PSIG); Weight: <5.8 kg (12.7 lbs)", "Multi-gas/multi-range via embedded diagnostic interface (Ethernet + HTML browser); Latest MKS control algorithms; Multiple digital protocol options; Wetted materials: 316L SS, 17-7 SS, Elgiloy, 430FR; Seal options: Viton, Buna, Neoprene, EPDM, Viton USP Class VI; Burst pressure: 103.4 bar (1500 PSIG); Weight: <2.05 kg (4.5 lbs)", "Multi-gas/multi-range via embedded diagnostic interface (Ethernet + HTML browser); IP66 enclosure for harsh environments; Device health checks & flow response plotting; Wetted materials: 316L SS, Elgiloy, 430FR, PTFE; Seal options: Viton, Buna, Neoprene, EPDM, Viton USP Class VI; Burst pressure: 103.4 bar (1500 PSIG); Weight: <5.8 kg (12.7 lbs)", "Compact MEMS thermal sensor; Low power consumption; Wetted materials: 316L SS; Seal options: Viton", "Compact MEMS thermal sensor; Low power consumption; Wetted materials: 316L SS; Seal options: Viton", "Multi-gas/multi-range via embedded diagnostic interface; Latest MKS control algorithms; Multiple digital protocol options; Wetted materials: 316L SS; Seal options: Viton", "Multi-gas/multi-range via embedded diagnostic interface; Wetted materials: 316L SS; Seal options: Viton", "Pressure insensitive design; Multi-gas/multi-range; Wetted materials: 316L SS; Seal options: Viton", "Compact 3-inch footprint; Metal sealed; Wetted materials: 316L SS; Seal options: Metal", "Multi-gas/multi-range via embedded diagnostic interface; Wetted materials: 316L SS; Seal options: Viton", "General purpose design; Wetted materials: 316L SS; Seal options: Viton", "Standard 3-inch footprint; Multi-gas/multi-range via embedded user interface; Wetted materials: 316L SS; Seal options: Viton", "Compact 3-inch footprint; Metal sealed; Wetted materials: 316L SS; Seal options: Metal", "Compact 1.125\" wide design; Metal sealed; Wetted materials: 316L SS; Seal options: Metal", "Standard 3-inch footprint; Multi-gas/multi-range via embedded user interface; Wetted materials: 316L SS VAR (semiconductor quality), 316 SS, Elgiloy, Nickel, KM45; Seal options: Teflon; 10µ inch electropolished surface finish; Weight: <3 lbs (1.4 kg); Burst pressure: 103.4 bar (1500 PSIG)", "Compact 1.125\" (28.6 mm) wide design; Multi-gas/multi-range via embedded user interface; Wetted materials: 316L SS VAR (semiconductor quality), 316 SS, Elgiloy, Nickel, KM45; Seal options: Teflon; 10µ inch electropolished surface finish; Weight: <3 lbs (1.4 kg); Burst pressure: 103.4 bar (1500 PSIG)"
+                ],
+                "Primary Applications": [
+                    "Leak testing, near-atmospheric monitoring, flow verification", "General gas flow measurement/control, test stands, calibration", "OEM equipment, bioreactors, gas chromatography, chemical processes, glass production", "Gas chromatography, gas mixing, analyzers, petrochemical, refineries", "Dosing, variable fluids, aggressive fluids, high-pressure systems, fuel cells",
+                    "Semiconductor, analysis, environmental, burner control, vacuum tech, surface treatment, process control", "Advanced applications requiring high accuracy and flexibility", "Burner control, cost-sensitive applications", "Semiconductor, pilot plants, laboratories, gas distribution, OEM", "Process gas in petrochemical, fuel cells, gas distribution, hazardous areas", "Analytical, dosing (food/beverage/pharma), petrochemical, pilot plants, CVD/coating, semiconductor",
+                    "Solar, biotech, nanotechnology, OEM, laboratories, frequent gas-type changes", "Chemical, petrochemical research, laboratory, analytical, fuel cell, life science", "Chemical, petrochemical research, laboratory, analytical, fuel cell, life science, biotech (with special packages)", "Chemical, petrochemical research, laboratory, analytical, fuel cell, high-pressure applications", "Optical fiber preform manufacturing (silicon precursor & dopant vapor delivery)", "Analytical, dosing, petrochemical, pilot plants, CVD/coating, semiconductor, food/beverage/pharma", "Chemical, petrochemical, laboratory, analytical, fuel cell, biotechnology, life science. Biotech: optimized for bioreactors & fermentation",
+                    "Aggressive gases, gas mixtures, alternating gases, process control, chemical/petrochemical, semiconductor, analytical instrumentation", "Aggressive gases, gas mixtures, alternating gases, laboratory, analytical, process control, OEM applications requiring analog/Industrial Ethernet interfaces", "Liquid dosing, food/beverage/pharma, biotechnology, analytical, petrochemical, chemical processing requiring precise liquid flow/density/temperature measurement", "Neutral/pure gases, laboratory, analytical, OEM, process control requiring IP20 housing and flexible communication options", "Neutral/pure gases, process control, semiconductor, analytical, chemical/petrochemical requiring IP65 protection and explosion protection options", "Neutral/pure gases, process control, semiconductor, analytical, chemical/petrochemical requiring IP65 industrial housing and optional explosion protection", "Neutral/pure gases, laboratory, analytical, OEM applications requiring IP20 housing and multiple communication options",
+                    "Industrial glass production, semiconductor, harsh environments requiring IP66 protection, high flow processes with moisture & particulates", "General purpose semiconductor, research labs, chemical processing, OEM equipment requiring digital control & multi-gas capability", "Industrial glass production, semiconductor, harsh environments requiring IP66 protection, medium-high flow processes with moisture & particulates", "Semiconductor manufacturing, research labs, low flow applications requiring compact MEMS design", "Semiconductor manufacturing, research labs, medium flow applications requiring compact MEMS design", "Semiconductor, research labs, chemical processing, OEM equipment requiring digital control & multi-gas capability", "Semiconductor manufacturing processes requiring multi-gas/multi-range capability", "Semiconductor manufacturing processes requiring pressure-insensitive multi-gas/multi-range capability", "Semiconductor manufacturing processes requiring compact footprint & metal sealed design", "Semiconductor, research labs, chemical processing, general purpose applications", "General purpose semiconductor, analytical, research labs", "Semiconductor, research labs, chemical processing requiring standard footprint & user-gas calibration", "Semiconductor manufacturing processes requiring compact footprint & metal sealed design", "Semiconductor manufacturing processes requiring ultra-compact 1.125\" wide footprint & metal sealed design", "General purpose semiconductor, research labs, chemical processing, high purity applications requiring metal sealed & electropolished surfaces", "General purpose semiconductor, research labs, chemical processing, high purity applications requiring ultra-compact 1.125\" wide design"
+                ]
+            }
+        };
+
+        // Spec Visibility Presets
+        const performanceSpecs = [
+            'Technology',
+            'Product Type',
+            'Flow Range Min (SLPM)',
+            'Flow Range Max (SLPM)',
+            'Accuracy (Standard)',
+            'Repeatability',
+            'Turndown Ratio',
+            'Control Response Time',
+            'Temperature Sensitivity'
+        ];
+
+        const installationSpecs = [
+            'Operating Pressure Range (bar)',
+            'Operating Temperature (°C)',
+            'Pressure Drop',
+            'Power Supply',
+            'Communications',
+            'Ingress Protection',
+            'Hazardous Area Certification',
+            'Dimensions (HxWxD, mm)',
+            'Weight (kg)'
+        ];
+
+        // State
+        let currentView = 'table';
+        let searchTerm = '';
+        let currentPreset = 'all';
+        let selectedForComparison = new Set();
+        let filters = {
+            manufacturer: '',
+            technology: '',
+            category: ''
+        };
+        let isDarkMode = false;
+
+        // Spec visibility state - Initialize with all specs visible
+        let visibleSpecs = new Set(Object.keys(productsData.specs));
+
+        // Elements
+        const searchInput = document.getElementById('searchInput');
+        const themeToggle = document.getElementById('themeToggle');
+        const comparisonPanel = document.getElementById('comparisonPanel');
+        const comparisonModal = document.getElementById('comparisonModal');
+        const tableView = document.getElementById('tableView');
+        const cardsView = document.getElementById('cardsView');
+        const emptyState = document.getElementById('emptyState');
+
+        // Initialize
+        function init() {
+            populateFilters();
+            initializeSpecVisibility();
+            // Ensure table view has proper display on init
+            tableView.style.display = 'flex';
+            cardsView.style.display = 'none';
+            renderTable();
+            setupEventListeners();
+            loadThemePreference();
+            updateStats();
+        }
+
+        // Populate filter dropdowns
+        function populateFilters() {
+            const technologies = [...new Set(productsData.specs['Technology'])].filter(t => t).sort();
+            const categories = [...new Set(productsData.specs['Product Type'])].filter(c => c).sort();
+
+            const techFilter = document.getElementById('technologyFilter');
+            const catFilter = document.getElementById('categoryFilter');
+
+            technologies.forEach(tech => {
+                const option = document.createElement('option');
+                option.value = tech;
+                option.textContent = tech;
+                techFilter.appendChild(option);
+            });
+
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                catFilter.appendChild(option);
+            });
+        }
+
+        // Initialize Spec Visibility UI
+        function initializeSpecVisibility() {
+            const specList = document.getElementById('specVisibilityList');
+            const specNames = Object.keys(productsData.specs);
+
+            specNames.forEach(specName => {
+                const item = document.createElement('div');
+                item.className = 'spec-visibility-item active';
+                item.dataset.spec = specName;
+
+                const label = document.createElement('div');
+                label.className = 'spec-visibility-label';
+                label.textContent = specName;
+
+                const toggle = document.createElement('div');
+                toggle.className = 'pill-toggle active';
+
+                // Toggle on click
+                const toggleSpec = () => {
+                    if (visibleSpecs.has(specName)) {
+                        visibleSpecs.delete(specName);
+                        item.classList.remove('active');
+                        toggle.classList.remove('active');
+                    } else {
+                        visibleSpecs.add(specName);
+                        item.classList.add('active');
+                        toggle.classList.add('active');
+                    }
+
+                    // Reset preset buttons when manually toggling
+                    document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+                    currentPreset = 'custom';
+
+                    render();
+                };
+
+                label.addEventListener('click', toggleSpec);
+                toggle.addEventListener('click', toggleSpec);
+
+                item.appendChild(label);
+                item.appendChild(toggle);
+                specList.appendChild(item);
+            });
+        }
+
+        // Toggle all specs on/off
+        function toggleAllSpecs() {
+            const toggleAllBtn = document.getElementById('toggleAllSpecs');
+            const allItems = document.querySelectorAll('.spec-visibility-item');
+
+            if (visibleSpecs.size === Object.keys(productsData.specs).length) {
+                // All visible - hide all
+                visibleSpecs.clear();
+                allItems.forEach(item => {
+                    item.classList.remove('active');
+                    item.querySelector('.pill-toggle').classList.remove('active');
+                });
+                // Deactivate preset buttons
+                document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+                currentPreset = 'custom';
+            } else {
+                // Some hidden - show all
+                applyPreset('all');
+            }
+            render();
+        }
+
+        // Apply spec visibility preset
+        function applyPreset(preset) {
+            currentPreset = preset;
+            const allItems = document.querySelectorAll('.spec-visibility-item');
+
+            // Update preset button states
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+
+            if (preset === 'performance') {
+                document.getElementById('presetPerformance').classList.add('active');
+                visibleSpecs = new Set(performanceSpecs);
+            } else if (preset === 'installation') {
+                document.getElementById('presetInstallation').classList.add('active');
+                visibleSpecs = new Set(installationSpecs);
+            } else {
+                document.getElementById('presetAll').classList.add('active');
+                visibleSpecs = new Set(Object.keys(productsData.specs));
+            }
+
+            // Update all toggle UI states
+            allItems.forEach(item => {
+                const specName = item.dataset.spec;
+                if (visibleSpecs.has(specName)) {
+                    item.classList.add('active');
+                    item.querySelector('.pill-toggle').classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                    item.querySelector('.pill-toggle').classList.remove('active');
+                }
+            });
+
+            render();
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // View toggle
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentView = e.target.dataset.view;
+                    render();
+                });
+            });
+
+            // Search
+            searchInput.addEventListener('input', (e) => {
+                searchTerm = e.target.value.toLowerCase();
+                render();
+            });
+
+            // Filters
+            document.getElementById('manufacturerFilter').addEventListener('change', (e) => {
+                filters.manufacturer = e.target.value;
+                render();
+            });
+
+            document.getElementById('technologyFilter').addEventListener('change', (e) => {
+                filters.technology = e.target.value;
+                render();
+            });
+
+            document.getElementById('categoryFilter').addEventListener('change', (e) => {
+                filters.category = e.target.value;
+                render();
+            });
+
+            document.getElementById('clearFilters').addEventListener('click', () => {
+                filters = { manufacturer: '', technology: '', category: '' };
+                document.getElementById('manufacturerFilter').value = '';
+                document.getElementById('technologyFilter').value = '';
+                document.getElementById('categoryFilter').value = '';
+                searchInput.value = '';
+                searchTerm = '';
+
+                // Reset spec visibility to show all
+                applyPreset('all');
+            });
+
+            // Spec visibility toggle all
+            document.getElementById('toggleAllSpecs').addEventListener('click', toggleAllSpecs);
+
+            // Spec visibility presets
+            document.getElementById('presetPerformance').addEventListener('click', () => applyPreset('performance'));
+            document.getElementById('presetInstallation').addEventListener('click', () => applyPreset('installation'));
+            document.getElementById('presetAll').addEventListener('click', () => applyPreset('all'));
+
+            // Theme toggle
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // Comparison panel
+            document.getElementById('clearSelection').addEventListener('click', () => {
+                selectedForComparison.clear();
+                updateComparisonPanel();
+                render();
+            });
+
+            document.getElementById('compareBtn').addEventListener('click', showComparisonModal);
+
+            // Modal close
+            document.querySelector('.close-modal').addEventListener('click', () => {
+                comparisonModal.classList.remove('active');
+            });
+
+            comparisonModal.addEventListener('click', (e) => {
+                if (e.target === comparisonModal) {
+                    comparisonModal.classList.remove('active');
+                }
+            });
+        }
+
+        // Get filtered product indices
+        function getFilteredProducts() {
+            return productsData.products.map((product, index) => {
+                const manufacturer = productsData.specs['Manufacturer'][index];
+                const technology = productsData.specs['Technology'][index];
+                const category = productsData.specs['Product Type'][index];
+
+                // Apply filters
+                if (filters.manufacturer && manufacturer !== filters.manufacturer) return null;
+                if (filters.technology && technology !== filters.technology) return null;
+                if (filters.category && category !== filters.category) return null;
+
+                // Apply search
+                if (searchTerm) {
+                    const productMatch = product.toLowerCase().includes(searchTerm);
+                    const specsMatch = Object.values(productsData.specs).some(specArray =>
+                        specArray[index] && specArray[index].toString().toLowerCase().includes(searchTerm)
+                    );
+                    if (!productMatch && !specsMatch) return null;
+                }
+
+                return index;
+            }).filter(index => index !== null);
+        }
+
+        // Render based on current view
+        function render() {
+            if (currentView === 'table') {
+                renderTable();
+                tableView.style.display = 'flex';
+                cardsView.style.display = 'none';
+            } else {
+                renderCards();
+                tableView.style.display = 'none';
+                cardsView.style.display = 'grid';
+            }
+            updateStats();
+        }
+
+        // Render table
+        function renderTable() {
+            const filteredIndices = getFilteredProducts();
+            const tableHead = document.getElementById('tableHead');
+            const tableBody = document.getElementById('tableBody');
+            const tableWrapper = document.querySelector('.table-wrapper');
+
+            if (filteredIndices.length === 0) {
+                emptyState.style.display = 'block';
+                tableView.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            tableView.style.display = 'flex';
+
+            // Ensure table wrapper maintains overflow for sticky positioning
+            if (tableWrapper) {
+                tableWrapper.style.overflow = 'auto';
+            }
+
+            // Header
+            let headerHTML = '<tr><th class="spec-name">Specification</th>';
+            filteredIndices.forEach(index => {
+                const product = productsData.products[index];
+                const manufacturer = productsData.specs['Manufacturer'][index];
+                const shortName = product.replace('Alicat ', '').replace('Bronkhorst ', '').replace('Brooks ', '').replace('Bürkert ', '').replace('MKS ', '');
+                const datasheetPath = getDatasheetPath(product, manufacturer);
+                let badgeClass, badgeText;
+                if (manufacturer === 'Alicat Scientific') {
+                    badgeClass = 'badge-alicat';
+                    badgeText = 'Alicat';
+                } else if (manufacturer === 'Bronkhorst') {
+                    badgeClass = 'badge-bronkhorst';
+                    badgeText = 'Bronkhorst';
+                } else if (manufacturer === 'Brooks Instrument') {
+                    badgeClass = 'badge-brooks';
+                    badgeText = 'Brooks';
+                } else if (manufacturer === 'Bürkert') {
+                    badgeClass = 'badge-burkert';
+                    badgeText = 'Bürkert';
+                } else if (manufacturer === 'MKS Instruments') {
+                    badgeClass = 'badge-mks';
+                    badgeText = 'MKS';
+                }
+                headerHTML += `
+                    <th class="product-header">
+                        <a href="${datasheetPath}" target="_blank" class="product-header-name">
+                            ${highlightText(shortName, searchTerm)}
+                        </a>
+                        <div class="manufacturer-badge ${badgeClass}">
+                            ${badgeText}
+                        </div>
+                    </th>
+                `;
+            });
+            headerHTML += '</tr>';
+            tableHead.innerHTML = headerHTML;
+
+            // Body
+            let bodyHTML = '';
+            Object.entries(productsData.specs).forEach(([spec, values]) => {
+                if (spec === 'Manufacturer') return; // Skip manufacturer row since it's in headers
+                if (!visibleSpecs.has(spec)) return; // Skip hidden specs
+
+                bodyHTML += `<tr data-spec="${spec}"><td class="spec-name">${highlightText(spec, searchTerm)}</td>`;
+                filteredIndices.forEach(index => {
+                    const value = values[index] || '-';
+                    bodyHTML += `<td>${highlightText(value, searchTerm)}</td>`;
+                });
+                bodyHTML += '</tr>';
+            });
+
+            tableBody.innerHTML = bodyHTML;
+
+            // Setup sticky header scroll shadow
+            setupTableScrollShadow();
+        }
+
+        // Add shadow to sticky header when scrolled
+        function setupTableScrollShadow() {
+            const tableWrapper = document.querySelector('.table-wrapper');
+            const thead = document.querySelector('#specsTable thead');
+
+            if (!tableWrapper || !thead) return;
+
+            const handleScroll = () => {
+                const headers = thead.querySelectorAll('th');
+
+                // Check vertical scroll in table wrapper
+                if (tableWrapper.scrollTop > 0) {
+                    headers.forEach(h => h.classList.add('scrolled'));
+                } else {
+                    headers.forEach(h => h.classList.remove('scrolled'));
+                }
+            };
+
+            // Remove old listeners if any
+            tableWrapper.removeEventListener('scroll', handleScroll);
+
+            // Add new listener
+            tableWrapper.addEventListener('scroll', handleScroll);
+
+            // Initial check
+            handleScroll();
+        }
+
+        // Render cards
+        function renderCards() {
+            const filteredIndices = getFilteredProducts();
+            const container = document.getElementById('cardsView');
+
+            if (filteredIndices.length === 0) {
+                emptyState.style.display = 'block';
+                cardsView.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            cardsView.style.display = 'grid';
+
+            let cardsHTML = '';
+            filteredIndices.forEach(index => {
+                const product = productsData.products[index];
+                const manufacturer = productsData.specs['Manufacturer'][index];
+                const isSelected = selectedForComparison.has(product);
+
+                let cardClass, badgeClass, badgeText;
+                if (manufacturer === 'Alicat Scientific') {
+                    cardClass = 'alicat';
+                    badgeClass = 'badge-alicat';
+                    badgeText = 'Alicat';
+                } else if (manufacturer === 'Bronkhorst') {
+                    cardClass = 'bronkhorst';
+                    badgeClass = 'badge-bronkhorst';
+                    badgeText = 'Bronkhorst';
+                } else if (manufacturer === 'Brooks Instrument') {
+                    cardClass = 'brooks';
+                    badgeClass = 'badge-brooks';
+                    badgeText = 'Brooks';
+                } else if (manufacturer === 'Bürkert') {
+                    cardClass = 'burkert';
+                    badgeClass = 'badge-burkert';
+                    badgeText = 'Bürkert';
+                } else if (manufacturer === 'MKS Instruments') {
+                    cardClass = 'mks';
+                    badgeClass = 'badge-mks';
+                    badgeText = 'MKS';
+                }
+
+                // Get all visible specs (excluding Manufacturer which is shown in badge)
+                const displaySpecs = Object.keys(productsData.specs).filter(spec =>
+                    spec !== 'Manufacturer' && visibleSpecs.has(spec)
+                );
+
+                // Get datasheet path
+                const datasheetPath = getDatasheetPath(product, manufacturer);
+
+                cardsHTML += `
+                    <div class="product-card ${cardClass} fade-in">
+                        <div class="card-header">
+                            <div>
+                                <a href="${datasheetPath}" target="_blank" class="card-title">${product}</a>
+                                <p class="card-subtitle">
+                                    <span class="manufacturer-badge ${badgeClass}">
+                                        ${badgeText}
+                                    </span>
+                                </p>
+                            </div>
+                            <input type="checkbox" class="compare-checkbox" data-product="${product}" ${isSelected ? 'checked' : ''}>
+                        </div>
+                        <div class="card-specs">
+                            ${displaySpecs.map(spec => {
+                                const value = productsData.specs[spec][index] || '-';
+                                return `
+                                    <div class="spec-row" data-spec="${spec}">
+                                        <span class="spec-label">${spec}</span>
+                                        <span class="spec-value">${highlightText(value, searchTerm)}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = cardsHTML;
+
+            // Add checkbox listeners
+            document.querySelectorAll('.compare-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const product = e.target.dataset.product;
+                    if (e.target.checked) {
+                        selectedForComparison.add(product);
+                    } else {
+                        selectedForComparison.delete(product);
+                    }
+                    updateComparisonPanel();
+                    updateStats();
+                });
+            });
+        }
+
+        // Update comparison panel
+        function updateComparisonPanel() {
+            const count = selectedForComparison.size;
+            document.getElementById('selectedCount').textContent = count;
+
+            const container = document.getElementById('selectedProductsList');
+            container.innerHTML = '';
+
+            selectedForComparison.forEach(product => {
+                const index = productsData.products.indexOf(product);
+                const manufacturer = productsData.specs['Manufacturer'][index];
+
+                let tagClass;
+                if (manufacturer === 'Alicat Scientific') {
+                    tagClass = 'alicat';
+                } else if (manufacturer === 'Bronkhorst') {
+                    tagClass = 'bronkhorst';
+                } else if (manufacturer === 'Brooks Instrument') {
+                    tagClass = 'brooks';
+                } else if (manufacturer === 'Bürkert') {
+                    tagClass = 'burkert';
+                } else if (manufacturer === 'MKS Instruments') {
+                    tagClass = 'mks';
+                }
+
+                const tag = document.createElement('div');
+                tag.className = `selected-tag ${tagClass}`;
+                tag.innerHTML = `${product} <span class="remove-tag" data-product="${product}">×</span>`;
+                container.appendChild(tag);
+            });
+
+            // Add remove listeners
+            document.querySelectorAll('.remove-tag').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const product = e.target.dataset.product;
+                    selectedForComparison.delete(product);
+                    updateComparisonPanel();
+                    render();
+                });
+            });
+
+            if (count > 0) {
+                comparisonPanel.classList.add('active');
+            } else {
+                comparisonPanel.classList.remove('active');
+            }
+        }
+
+        // Show comparison modal
+        function showComparisonModal() {
+            if (selectedForComparison.size < 2) {
+                alert('Please select at least 2 products to compare');
+                return;
+            }
+
+            const selectedProducts = Array.from(selectedForComparison);
+            const selectedIndices = selectedProducts.map(p => productsData.products.indexOf(p));
+            const modalBody = document.getElementById('modalBody');
+
+            let tableHTML = '<table class="comparison-table"><thead><tr><th>Specification</th>';
+            selectedProducts.forEach(product => {
+                tableHTML += `<th>${product}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+
+            Object.entries(productsData.specs).forEach(([spec, values]) => {
+                tableHTML += `<tr><td class="spec-name">${spec}</td>`;
+                selectedIndices.forEach(index => {
+                    tableHTML += `<td>${values[index] || '-'}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+
+            tableHTML += '</tbody></table>';
+            modalBody.innerHTML = tableHTML;
+            comparisonModal.classList.add('active');
+        }
+
+        // Update stats
+        function updateStats() {
+            const filteredIndices = getFilteredProducts();
+            document.getElementById('totalProducts').textContent = productsData.products.length;
+            document.getElementById('visibleProducts').textContent = filteredIndices.length;
+            document.getElementById('selectedProducts').textContent = selectedForComparison.size;
+
+            // Update workbench badge
+            const badge = document.getElementById('visibleProductsBadge');
+            if (badge) {
+                badge.textContent = `${filteredIndices.length} Product${filteredIndices.length !== 1 ? 's' : ''}`;
+            }
+        }
+
+        // Highlight search term
+        function highlightText(text, term) {
+            if (!term || !text) return text;
+            const regex = new RegExp(`(${term})`, 'gi');
+            return text.toString().replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // Get datasheet path for a product
+        function getDatasheetPath(product, manufacturer) {
+            // Extract short name (remove manufacturer prefix)
+            let shortName = product
+                .replace('Alicat ', '')
+                .replace('Bronkhorst ', '')
+                .replace('Brooks ', '')
+                .replace('Bürkert ', '')
+                .replace('MKS ', '');
+
+            // Determine folder based on manufacturer
+            let folder = '';
+            if (manufacturer === 'Alicat Scientific') {
+                folder = 'Alicat';
+            } else if (manufacturer === 'Bronkhorst') {
+                folder = 'Bronkhorst';
+            } else if (manufacturer === 'Brooks Instrument') {
+                folder = 'Brooks';
+            } else if (manufacturer === 'Bürkert') {
+                folder = 'Burkert';
+            } else if (manufacturer === 'MKS Instruments') {
+                folder = 'MKS';
+            }
+
+            // Handle specific naming patterns that don't match the standard
+            // Most files are in format matching the short name with spaces/hyphens preserved
+            // and varying case
+            let fileName = shortName;
+
+            // Special cases for specific products
+            if (shortName === 'mini CORI-FLOW') {
+                fileName = 'MINI CORI-FLOW';
+            } else if (shortName.includes('Type ')) {
+                // Bürkert products - TYPE 8741, etc.
+                fileName = shortName.replace('Type ', 'TYPE ');
+            }
+
+            // Return path to datasheet
+            return `./${folder}/${fileName}.pdf`;
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            themeToggle.textContent = isDarkMode ? '☀️' : '🌓';
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        function loadThemePreference() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                isDarkMode = true;
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '☀️';
+            }
+        }
+
+        // CSV Export/Import Functions
+        function downloadCSV() {
+            const headers = ['Product', ...Object.keys(productsData.specs)];
+            const rows = [headers];
+
+            // Add data rows
+            productsData.products.forEach((product, index) => {
+                const row = [product];
+                Object.keys(productsData.specs).forEach(spec => {
+                    row.push(productsData.specs[spec][index] || '');
+                });
+                rows.push(row);
+            });
+
+            // Convert to CSV format
+            const csvContent = rows.map(row =>
+                row.map(cell => {
+                    // Escape quotes and wrap in quotes if contains comma, newline, or quote
+                    const cellStr = String(cell);
+                    if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+                        return '"' + cellStr.replace(/"/g, '""') + '"';
+                    }
+                    return cellStr;
+                }).join(',')
+            ).join('\n');
+
+            // Download file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'mass_flow_meters_data.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function uploadCSV() {
+            document.getElementById('csvFileInput').click();
+        }
+
+        function parseCSV(csvText) {
+            const lines = [];
+            let currentLine = [];
+            let currentCell = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                const nextChar = csvText[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        currentCell += '"';
+                        i++; // Skip next quote
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    currentLine.push(currentCell);
+                    currentCell = '';
+                } else if (char === '\n' && !inQuotes) {
+                    currentLine.push(currentCell);
+                    if (currentLine.some(cell => cell.trim() !== '')) {
+                        lines.push(currentLine);
+                    }
+                    currentLine = [];
+                    currentCell = '';
+                } else if (char === '\r' && !inQuotes) {
+                    // Skip carriage return
+                    continue;
+                } else {
+                    currentCell += char;
+                }
+            }
+
+            // Add last cell and line if exists
+            if (currentCell || currentLine.length > 0) {
+                currentLine.push(currentCell);
+                if (currentLine.some(cell => cell.trim() !== '')) {
+                    lines.push(currentLine);
+                }
+            }
+
+            return lines;
+        }
+
+        function handleCSVUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csvText = e.target.result;
+                    const rows = parseCSV(csvText);
+
+                    if (rows.length < 2) {
+                        alert('CSV file must contain headers and at least one data row');
+                        return;
+                    }
+
+                    const headers = rows[0];
+                    const productIndex = headers.indexOf('Product');
+
+                    if (productIndex === -1) {
+                        alert('CSV must have a "Product" column');
+                        return;
+                    }
+
+                    // Extract spec columns (all except Product)
+                    const specHeaders = headers.filter((h, i) => i !== productIndex);
+
+                    // Rebuild productsData
+                    const newProducts = [];
+                    const newSpecs = {};
+
+                    // Initialize spec arrays
+                    specHeaders.forEach(header => {
+                        newSpecs[header] = [];
+                    });
+
+                    // Parse data rows
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        if (row.length === 0 || row.every(cell => !cell.trim())) continue;
+
+                        const productName = row[productIndex]?.trim();
+                        if (!productName) continue;
+
+                        newProducts.push(productName);
+
+                        // Add spec values
+                        headers.forEach((header, idx) => {
+                            if (idx !== productIndex) {
+                                newSpecs[header].push(row[idx] || '');
+                            }
+                        });
+                    }
+
+                    // Validate data
+                    if (newProducts.length === 0) {
+                        alert('No valid products found in CSV');
+                        return;
+                    }
+
+                    // Update productsData
+                    productsData.products = newProducts;
+                    productsData.specs = newSpecs;
+
+                    // Show save button
+                    document.getElementById('downloadHtmlBtn').style.display = 'inline-flex';
+
+                    // Re-render
+                    init();
+
+                    alert(`Successfully loaded ${newProducts.length} products from CSV!`);
+                } catch (error) {
+                    console.error('Error parsing CSV:', error);
+                    alert('Error parsing CSV file. Please check the format.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function downloadUpdatedHTML() {
+            // Get the current HTML content
+            const htmlContent = document.documentElement.outerHTML;
+
+            // Create a new HTML with updated data
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+
+            // Find and replace the productsData in the script
+            const scripts = doc.querySelectorAll('script');
+            let scriptToUpdate = null;
+
+            for (let script of scripts) {
+                if (script.textContent.includes('const productsData = {')) {
+                    scriptToUpdate = script;
+                    break;
+                }
+            }
+
+            if (scriptToUpdate) {
+                const scriptContent = scriptToUpdate.textContent;
+                const startMarker = 'const productsData = {';
+                const endMarker = '};';
+
+                const startIndex = scriptContent.indexOf(startMarker);
+                const endIndex = scriptContent.indexOf(endMarker, startIndex) + endMarker.length;
+
+                if (startIndex !== -1 && endIndex !== -1) {
+                    // Build new productsData string
+                    const newProductsDataStr = `const productsData = ${JSON.stringify(productsData, null, 12)};`;
+
+                    const before = scriptContent.substring(0, startIndex);
+                    const after = scriptContent.substring(endIndex);
+
+                    scriptToUpdate.textContent = before + newProductsDataStr + after;
+                }
+            }
+
+            // Update the total products count in HTML
+            const totalProductsElement = doc.getElementById('totalProducts');
+            if (totalProductsElement) {
+                totalProductsElement.textContent = productsData.products.length;
+            }
+
+            const visibleProductsElement = doc.getElementById('visibleProducts');
+            if (visibleProductsElement) {
+                visibleProductsElement.textContent = productsData.products.length;
+            }
+
+            // Download the updated HTML
+            const updatedHTML = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+            const blob = new Blob([updatedHTML], { type: 'text/html;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'index.html');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            alert('Updated HTML file downloaded! Replace your current index.html with this file.');
+        }
+
+        // Sidebar toggle functionality
+        let isSidebarVisible = true;
+
+        function toggleSidebar() {
+            isSidebarVisible = !isSidebarVisible;
+            const commandCenter = document.getElementById('commandCenter');
+            const workbench = document.getElementById('workbench');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (isSidebarVisible) {
+                commandCenter.classList.remove('hidden');
+                workbench.classList.remove('full-width');
+                toggleIcon.textContent = '◀';
+            } else {
+                commandCenter.classList.add('hidden');
+                workbench.classList.add('full-width');
+                toggleIcon.textContent = '▶';
+            }
+        }
+
+        // Workbench header toggle functionality
+        let isWorkbenchHeaderVisible = true;
+
+        function toggleWorkbenchHeader() {
+            isWorkbenchHeaderVisible = !isWorkbenchHeaderVisible;
+            const workbenchHeader = document.getElementById('workbenchHeader');
+
+            if (isWorkbenchHeaderVisible) {
+                workbenchHeader.classList.remove('hidden');
+            } else {
+                workbenchHeader.classList.add('hidden');
+            }
+        }
+
+        // Event Listeners for toggles
+        document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+        document.getElementById('workbenchToggle').addEventListener('click', toggleWorkbenchHeader);
+
+        // Event Listeners for CSV functionality
+        document.getElementById('downloadCsvBtn').addEventListener('click', downloadCSV);
+        document.getElementById('uploadCsvBtn').addEventListener('click', uploadCSV);
+        document.getElementById('csvFileInput').addEventListener('change', handleCSVUpload);
+        document.getElementById('downloadHtmlBtn').addEventListener('click', downloadUpdatedHTML);
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
